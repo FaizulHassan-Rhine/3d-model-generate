@@ -69,14 +69,22 @@ setUploadedTexture(texture)
       alert('Model or textures are not ready yet. Please wait.')
       return
     }
-
+  
     setIsExporting(true)
-    
+  
     try {
-        const uploadedTexture = modelRef.current?.uploadedTexture
-      
+      const originalScene = modelRef.current.scene
+      const uploadedTexture = modelRef.current.uploadedTexture
+  
+      // Clone the scene
+      const sceneClone = originalScene.clone(true)
+  
+      // Reassign material maps in the clone if needed
       sceneClone.traverse((child) => {
         if (child.isMesh && child.material) {
+          // Create a new material instance to avoid modifying the original one
+          child.material = child.material.clone()
+  
           if (!child.material.map && uploadedTexture) {
             child.material.map = uploadedTexture
             child.material.map.encoding = THREE.sRGBEncoding
@@ -85,7 +93,7 @@ setUploadedTexture(texture)
           }
         }
       })
-
+  
       const exporter = new GLTFExporter()
       const result = await new Promise((resolve, reject) => {
         exporter.parse(
@@ -106,7 +114,7 @@ setUploadedTexture(texture)
           }
         )
       })
-
+  
       const blob = new Blob([result], { type: 'model/gltf-binary' })
       saveAs(blob, 'modified_model.glb')
     } catch (error) {
@@ -116,6 +124,7 @@ setUploadedTexture(texture)
       setIsExporting(false)
     }
   }
+  
 
   useEffect(() => {
     return () => {
