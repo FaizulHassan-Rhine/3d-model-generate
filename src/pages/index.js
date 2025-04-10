@@ -5,12 +5,14 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import { useRouter } from 'next/router'
 import ModelUploader from '@/components/ModelUploader/ModelUploader'
 import Link from 'next/link'
+import { useUpload } from '@/context/UploadContext'
+
 
 export default function Home() {
   const [loading, setLoading] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showEmbedModal, setShowEmbedModal] = useState(false)
-  
+  const { setUploadedImages } = useUpload()
   const router = useRouter()
 
   const handleUpload = (files) => {
@@ -19,15 +21,21 @@ export default function Home() {
       alert('Please upload at least 5 images!')
       return
     }
-
+  
     setLoading(true)
     setShowUploadModal(false)
-
+    setUploadedImages(validImages)
     setTimeout(() => {
       setLoading(false)
-      router.push('/model-viewer')
+      router.push({
+        pathname: '/model-viewer',
+        query: {
+          images: JSON.stringify(validImages.map(file => file.name)) // optional fallback
+        }
+      })
     }, 3000)
   }
+  
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white overflow-hidden">

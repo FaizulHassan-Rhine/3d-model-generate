@@ -8,6 +8,8 @@ import * as THREE from 'three'
 import Model from '../components/ModelViewer/Model'
 import ModelControls from '../components/ModelViewer/ModelControls'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { useUpload } from '@/context/UploadContext'
+
 
 export default function ModelViewer() {
   const [uploadedTexture, setUploadedTexture] = useState(null)
@@ -15,7 +17,7 @@ export default function ModelViewer() {
   const [glContext, setGlContext] = useState(null)
   const [isExporting, setIsExporting] = useState(false)
   const [activeTab, setActiveTab] = useState('controls')
-
+  const { uploadedImages } = useUpload()
   const {
     color,
     wireframe,
@@ -123,6 +125,20 @@ setUploadedTexture(texture)
 
   return (
     <div className="flex h-screen bg-gray-100 text-white overflow-hidden">
+        <div className="w-48 bg-gray-900/80 p-2 overflow-y-auto border-r border-gray-700">
+  <h2 className="text-sm font-semibold text-gray-300 mb-2 text-center">Uploaded Images</h2>
+  <div className="grid grid-cols-2 justify-items-center gap-2">
+    {uploadedImages.map((file, idx) => (
+      <img
+        key={idx}
+        src={URL.createObjectURL(file)}
+        alt={`Upload ${idx + 1}`}
+        className="w-20 h-20 object-cover rounded-md border  border-green-600"
+      />
+    ))}
+  </div>
+</div>
+
       <div className="flex-1 relative">
         <Canvas
           onCreated={({ gl, scene, camera }) => {
